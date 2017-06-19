@@ -1,4 +1,4 @@
-OrderDate,ShipDate,ShipMode,CustomerID,Segment,City,State,PostalCode,Region,ProductID,Category,Sub-Category,ProductName,Sales,Quantity,Discount,Profit,ShippingCost,OrderPriority
+OrderDate,ShipDate,ShipMode,CustomerID,Segment,City,State,PostalCode,Region,ProductID,Category,SubCategory,ProductName,Sales,Quantity,Discount,Profit,ShippingCost,OrderPriority
 2013/3/4,2013/3/9,Standard Class,AA-10315,Consumer,Round Rock,Texas,78664,Central,OFF-SU-10000151,Office Supplies,Supplies,High Speed Automatic Electric Letter Opener,3930.072,3,0.2,-786.0144,253.2,Medium
 2011/3/31,2011/4/5,Standard Class,AA-10315,Consumer,San Francisco,California,94122,West,OFF-BI-10004390,Office Supplies,Binders,GBC DocuBind 200 Manual Binding Machine,673.568,2,0.2,252.588,54.96,Medium
 2014/6/30,2014/7/5,Standard Class,AA-10315,Consumer,Minneapolis,Minnesota,55407,Central,OFF-AP-10000576,Office Supplies,Appliances,"Belkin 325VA UPS Surge Protector, 6'",362.94,3,0,90.735,30.74,Medium
