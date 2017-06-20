@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="UTF-8">
+  <title>map</title>
+  <script src="d3/d3.v3.js"></script>
+  <style>
+    text {
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+
+</body>
+<script>
+const width  = 1250;
+const height = 450;
+
+const svg = d3.select("body")
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+//定义地图的投影
+const projection = d3.geo.albersUsa()
+    .translate([width/2, height/2])
+    .scale([1000]);
+
+//定义路径生成器
+const path = d3.geo.path()
+    .projection(projection);
+
+//读入CSV数据
+d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function(data) {
+
+    // 计算每一个子类别对应的总营销额以及利润
+    let arr = [];
+    for (let d of data){
+        let hasSubCategory = false;
+        for (let a of arr) {
+            if ( d.State === a[0] ) {
+                a[1] += Number(d.Sales);
+                a[2] += Number(d.Profit);
+                hasSubCategory = true;
+            }
+        }
+        if (!hasSubCategory) {
+            let newArr = [d.State, Number(d.Sales), Number(d.Profit)];
+            arr.push(newArr);
+        }
+    }
+    let profit = [];
+    for (let a of arr) {
+        profit.push(Math.log( Math.abs(a[2]) ));
+    }
+    profit.sort(function (x, y) {
+        return x - y;
+    });
+
+    // 定义半径比例尺
+    const radius = d3.scale.linear()
+        .domain([
+            d3.min(arr, function(d) { return Math.abs(parseFloat(d[1])); }),
+            d3.max(arr, function(d) { return Math.abs(parseFloat(d[1])); })
+        ])
+        .range([5, 40]);
+    // 定义颜色比例尺
+    const color = d3.scale.linear()
+        .domain([
+            - Math.log(Math.abs(d3.min(arr, function(d) { return parseFloat(d[2]); }))),
+            0,
+            Math.log(d3.max(arr, function(d) { return parseFloat(d[2]); }))
+        ])
+        .range(["#e51c23", "#cccccc", "#259b24"]);
+
+    //读入GeoJSON数据
+    d3.json("us-states.json", function(states) {
+        //混合利润数据和GeoJSON
+        //循环利润数据集中的每个值
+        for (let d of arr) {
+            //获取州名
+            let dataState  = d[0];
+            //获取该州所对应的数据值，并将字符串类型转换成浮点数类型
+            let dataSales  = parseFloat(d[1]);
+            let dataProfit = parseFloat(d[2]);
+            //在GeoJSON中找到相应的州
+            for (let state of states.features) {
+                let stateName = state.properties.name;
+                if (stateName === dataState) {
+                    //把利润数据值复制到json中
+                    //console.log(stateName);
+                    state.properties.Sales  = Number(dataSales);
+                    state.properties.Profit = Number(dataProfit);
+                    //停止循环JSON数据
+                    break;
+                }
+            }
+        }
+
+        //绑定数据并为每一个GeoJSON feature创建一个路径
+        let state = svg.selectAll("path")
+            .data(states.features)
+            .enter()
+            .append("path")
+            .attr("d", path)
+            .attr("fill", function (d) {
+                const location = this.getBoundingClientRect();
+                //选择悬停元素的父元素svg，并向里面添加text标签和州的名字
+                d3.select(this.parentNode)
+                    .datum(d)
+                    .append('g')
+                    .append('circle')
+                    .attr('cx', location.left + location.width/2)
+                    .attr('cy', location.top + location.height/2)
+                    .attr('r', function (d) {
+                        let sales = Math.abs(d.properties.Sales);
+                        return radius(sales);
+                    })
+                    .attr("fill", function(d) {
+                        //console.log(d);
+                        let profit = Math.log(Math.abs(d.properties.Profit));
+                        if (d.properties.Profit > 0)
+                            return color(profit);
+                        else
+                            return color(-profit);
+                    })
+                    .attr("opacity", 0.76);
+
+                return "#cccccc";
+                /*
+                let profit = Math.log(Math.abs(d.properties.Profit));
+                if (d.properties.Profit > 0)
+                    return color(profit);
+                else
+                    return color(-profit);
+                */
+            });
+
+        let circle = svg.selectAll("circle");
+        circle.on("mouseover", function(d) {
+            //鼠标悬停添加文字
+            //取得鼠标所在元素的坐标
+            var location = this.getBoundingClientRect();
+
+            //控制文字显示位置
+            var x = location.left + location.width/2 - 50;
+            var y = location.top  + location.height/2 - 10;
+
+            //选择悬停元素的父元素，并向里面添加text标签和州的名字
+            d3.select(this.parentNode)
+                .append('text')
+                .attr("id", "state_name").attr("x", x).attr("y", y)
+                .text(function() { return d.properties.name; });
+
+            //第二行数据，显示利润，y相对上一行多了20px
+            d3.select(this.parentNode)
+                .append('text')
+                .attr("id", "profit_value").attr("x", x).attr("y", y+20)
+                .text(function() { return d.properties.Profit; });
+        })
+            .on("mouseout", function(d) {
+                //鼠标移开删除文字
+                //删除提示条
+                d3.select("#state_name").remove();
+                d3.select("#profit_value").remove();
+            });
+        state.on("mouseover", function(d) {
+            //鼠标悬停添加文字
+            //取得鼠标所在元素的坐标
+            var location = this.getBoundingClientRect();
+
+            //控制文字显示位置
+            var x = location.left + location.width/2 - 50;
+            var y = location.top  + location.height/2 - 10;
+
+            //选择悬停元素的父元素，并向里面添加text标签和州的名字
+            d3.select(this.parentNode)
+                .append('text')
+                .attr("id", "state_name").attr("x", x).attr("y", y)
+                .text(function() { return d.properties.name; });
+
+            //第二行数据，显示利润，y相对上一行多了20px
+            d3.select(this.parentNode)
+                .append('text')
+                .attr("id", "profit_value").attr("x", x).attr("y", y+20)
+                .text(function() { return d.properties.Profit; });
+        })
+            .on("mouseout", function(d) {
+                //鼠标移开删除文字
+                //删除提示条
+                d3.select("#state_name").remove();
+                d3.select("#profit_value").remove();
+            });
+    });
+});
+</script>
+</html>
