@@ -43,7 +43,7 @@ d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function (data) {
         for (let j = 0; j < arr.length; j++) {
             if ( data[i].SubCategory === arr[j][0] ) {
                 arr[j][1] += Number(data[i].Sales);
-                arr[j][2] += + Number(data[i].Profit);
+                arr[j][2] += Number(data[i].Profit);
                 hasSubCategory = true;
             }
         }
