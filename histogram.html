@@ -16,6 +16,9 @@
       font-family: sans-serif;
       font-size: 11px;
     }
+    text {
+      font-size: 12px;
+    }
   </style>
 </head>
 <body>
@@ -45,7 +48,7 @@ d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function (data) {
             }
         }
         if (!hasSubCategory) {
-            let newArr = [data[i].SubCategory, Number(data[i].Sales), Number(data[i].Profit)];
+            let newArr = [data[i].SubCategory, Number(data[i].Sales), Number(data[i].Profit), data[i].Category];
             arr.push(newArr);
         }
     }
@@ -97,7 +100,7 @@ d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function (data) {
             return xScale(d[0]);
         })
         .attr("y",function(d){
-            return yScale(d[1]);
+            return yScale(d[1])-0.5;
         })
         .attr("width", xScale.rangeBand())
         .attr("height", function(d){
@@ -112,28 +115,34 @@ d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function (data) {
             //控制文字显示位置
             const x = location.left - 5;
             // 高于一半则显示在下方，否则显示在上方
+            const fontHeight = 16;
             const y = (yScale(d[1]) > height/2)
-                ? height - location.height - 64
-                : height - location.height;
+                ? height - location.height - 7 - 4*fontHeight
+                : height - location.height - 7;
 
             //选择悬停元素的父元素，并向里面添加text标签和州的名字
             d3.select(this.parentNode)
                 .append('text')
-                .attr("id", "SubCategory").attr("x", x).attr("y", y)
+                .attr("id", "Category").attr("x", x).attr("y", y)
+                .text(function() { return "类别：" + d[3]; });
+            d3.select(this.parentNode)
+                .append('text')
+                .attr("id", "SubCategory").attr("x", x).attr("y", y + fontHeight)
                 .text(function() { return "子类别：" + d[0]; });
-            //第二行数据，显示销售量，y相对上一行多了20px
+            //第二行数据，显示销售量
             d3.select(this.parentNode)
                 .append('text')
-                .attr("id", "Sales").attr("x", x).attr("y", y+20)
+                .attr("id", "Sales").attr("x", x).attr("y", y + 2*fontHeight)
                 .text(function() { return "销售量：" + parseInt(d[1]); });
-            //第三行数据，显示利润，y相对上一行多了40px
+            //第三行数据，显示利润
             d3.select(this.parentNode)
                 .append('text')
-                .attr("id", "Profit").attr("x", x).attr("y", y+40)
+                .attr("id", "Profit").attr("x", x).attr("y", y + 3*fontHeight)
                 .text(function() { return "利润：" + parseInt(d[2]); });
         })
         .on("mouseout", function() { //鼠标移开删除文字
             //删除提示条
+            d3.select("#Category").remove();
             d3.select("#SubCategory").remove();
             d3.select("#Sales").remove();
             d3.select("#Profit").remove();
