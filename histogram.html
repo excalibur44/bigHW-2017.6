@@ -1,10 +1,134 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-cn">
 <head>
   <meta charset="UTF-8">
-  <title>$Title$</title>
+  <title>histogram</title>
+  <script src="d3/d3.v3.js"></script>
+  <style>
+    .axis path,
+    .axis line{
+      fill: none;
+      stroke: black;
+      shape-rendering: crispEdges;
+    }
+
+    .axis text {
+      font-family: sans-serif;
+      font-size: 11px;
+    }
+  </style>
 </head>
 <body>
-$END$
+
 </body>
+<script>
+const width  = 1250;
+const height = 450;
+
+const svg = d3.select("body")
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+/* d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function(csv) { data = csv }) */
+d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function (data) {
+
+    // 计算每一个子类别对应的总营销额
+    let map = new Map();
+    for(let i = 0; i < data.length; i++){
+        if ( Boolean(map.get(data[i].SubCategory)) ) {
+            map.set(data[i].SubCategory, Number(map.get(data[i].SubCategory)) + Number(data[i].Sales));
+        }
+        else {
+            map.set(data[i].SubCategory, Number(data[i].Sales));
+        }
+    }
+    let obj = Object.create(null);
+    for (let [k,v] of map) {
+        obj[k] = v;
+    }
+    //let dataset = JSON.stringify(obj);
+    let dataset = JSON.stringify([...map]);
+
+    // 给坐标轴预留出来空白
+    const padding = {left:80, right:80, top:20, bottom:20};
+    // 计算比例尺
+    const xScale = d3.scale.ordinal()
+        .domain([...map.keys()])
+        .rangeRoundBands( [0, width - padding.left - padding.right], 0.1 );
+    const yScale = d3.scale.linear()
+        .domain([ 0, parseInt(d3.max([...map.values()]))+10 ])
+        .range([ height - padding.top - padding.bottom, 0 ]);
+    // 颜色比例尺
+    const colorScale = d3.scale.linear()
+        .domain([ 0, parseInt(d3.max([...map.values()]))+10 ])
+        .range(["#afbfff", "#455ede"]);
+
+    //定义坐标轴
+    const xAxis = d3.svg.axis().scale(xScale).orient("bottom");
+    const yAxis = d3.svg.axis().scale(yScale).orient("left");
+
+    //添加坐标轴
+    svg.append("g")
+        .attr("class","axis")
+        .attr("transform","translate(" + padding.left + "," + (height - padding.bottom) + ")")
+        .call(xAxis);
+    svg.append("g")
+        .attr("class","axis")
+        .attr("transform","translate(" + padding.left + "," + padding.top + ")")
+        .call(yAxis);
+
+    // 添加矩形元素
+    svg.selectAll("rect")
+        .data([...map])
+        .enter()
+        .append("rect")
+        .attr("transform","translate(" + padding.left + "," + padding.top + ")")
+        .attr("fill", function (d) {
+            console.log(d[1]);
+            return colorScale(d[1]);
+        })
+        .attr("x", function(d){
+            return xScale(d[0]);
+        })
+        .attr("y",function(d){
+            return yScale(d[1]);
+        })
+        .attr("width", xScale.rangeBand())
+        .attr("height", function(d){
+            return height - padding.top - padding.bottom - yScale(d[1]);
+        })
+        // 添加鼠标事件
+        .on("mouseover", function(d) { //鼠标悬停添加文字
+            //取得鼠标所在元素的坐标
+            const location = this.getBoundingClientRect();
+            //console.log(location);
+
+            //控制文字显示位置
+            const x = location.left - 5;
+            // 高于一半则显示在下方，否则显示在上方
+            const y = (yScale(d[1]) > height/2)
+                ? height - location.height - 44
+                : height - location.height;
+
+            //选择悬停元素的父元素，并向里面添加text标签和州的名字
+            d3.select(this.parentNode)
+                .append('text')
+                .attr("id", "SubCategory").attr("x", x).attr("y", y)
+                .text(function() { return "子类别：" + d[0]; });
+
+            //第二行数据，显示利润，y相对上一行多了20px
+            d3.select(this.parentNode)
+                .append('text')
+                .attr("id", "Sales").attr("x", x).attr("y", y+20)
+                .text(function() { return "销售量：" + parseInt(d[1]); });
+        })
+        .on("mouseout", function() { //鼠标移开删除文字
+            //删除提示条
+            d3.select("#SubCategory").remove();
+            d3.select("#Sales").remove();
+        });
+});
+
+</script>
 </html>
