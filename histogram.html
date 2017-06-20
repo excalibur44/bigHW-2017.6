@@ -33,36 +33,42 @@ const svg = d3.select("body")
 /* d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function(csv) { data = csv }) */
 d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function (data) {
 
-    // 计算每一个子类别对应的总营销额
-    let map = new Map();
-    for(let i = 0; i < data.length; i++){
-        if ( Boolean(map.get(data[i].SubCategory)) ) {
-            map.set(data[i].SubCategory, Number(map.get(data[i].SubCategory)) + Number(data[i].Sales));
+    // 计算每一个子类别对应的总营销额以及利润
+    let arr = [];
+    for (let i = 0; i < data.length; i++){
+        let hasSubCategory = false;
+        for (let j = 0; j < arr.length; j++) {
+            if ( data[i].SubCategory === arr[j][0] ) {
+                arr[j][1] += Number(data[i].Sales);
+                arr[j][2] += + Number(data[i].Profit);
+                hasSubCategory = true;
+            }
         }
-        else {
-            map.set(data[i].SubCategory, Number(data[i].Sales));
+        if (!hasSubCategory) {
+            let newArr = [data[i].SubCategory, Number(data[i].Sales), Number(data[i].Profit)];
+            arr.push(newArr);
         }
     }
-    let obj = Object.create(null);
-    for (let [k,v] of map) {
-        obj[k] = v;
+    let SubCategory = [], Sales = [], Profit = [];
+    for (let i of arr) {
+        SubCategory.push(i[0]);
+        Sales.push(i[1]);
+        Profit.push(i[2]);
     }
-    //let dataset = JSON.stringify(obj);
-    let dataset = JSON.stringify([...map]);
 
     // 给坐标轴预留出来空白
     const padding = {left:80, right:80, top:20, bottom:20};
     // 计算比例尺
     const xScale = d3.scale.ordinal()
-        .domain([...map.keys()])
+        .domain(SubCategory)
         .rangeRoundBands( [0, width - padding.left - padding.right], 0.1 );
     const yScale = d3.scale.linear()
-        .domain([ 0, parseInt(d3.max([...map.values()]))+10 ])
+        .domain([ 0, parseInt(d3.max(Sales))+1 ])
         .range([ height - padding.top - padding.bottom, 0 ]);
     // 颜色比例尺
     const colorScale = d3.scale.linear()
-        .domain([ 0, parseInt(d3.max([...map.values()]))+10 ])
-        .range(["#afbfff", "#455ede"]);
+        .domain([ parseInt(d3.min(Profit)), -0.1, 0, parseInt(d3.max(Profit))+1 ])
+        .range(["#ffc107", "#ffe082", "#afbfff", "#455ede"]);
 
     //定义坐标轴
     const xAxis = d3.svg.axis().scale(xScale).orient("bottom");
@@ -80,13 +86,12 @@ d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function (data) {
 
     // 添加矩形元素
     svg.selectAll("rect")
-        .data([...map])
+        .data(arr)
         .enter()
         .append("rect")
         .attr("transform","translate(" + padding.left + "," + padding.top + ")")
         .attr("fill", function (d) {
-            console.log(d[1]);
-            return colorScale(d[1]);
+            return colorScale(d[2]);
         })
         .attr("x", function(d){
             return xScale(d[0]);
@@ -108,7 +113,7 @@ d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function (data) {
             const x = location.left - 5;
             // 高于一半则显示在下方，否则显示在上方
             const y = (yScale(d[1]) > height/2)
-                ? height - location.height - 44
+                ? height - location.height - 64
                 : height - location.height;
 
             //选择悬停元素的父元素，并向里面添加text标签和州的名字
@@ -116,17 +121,22 @@ d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function (data) {
                 .append('text')
                 .attr("id", "SubCategory").attr("x", x).attr("y", y)
                 .text(function() { return "子类别：" + d[0]; });
-
-            //第二行数据，显示利润，y相对上一行多了20px
+            //第二行数据，显示销售量，y相对上一行多了20px
             d3.select(this.parentNode)
                 .append('text')
                 .attr("id", "Sales").attr("x", x).attr("y", y+20)
                 .text(function() { return "销售量：" + parseInt(d[1]); });
+            //第三行数据，显示利润，y相对上一行多了40px
+            d3.select(this.parentNode)
+                .append('text')
+                .attr("id", "Profit").attr("x", x).attr("y", y+40)
+                .text(function() { return "利润：" + parseInt(d[2]); });
         })
         .on("mouseout", function() { //鼠标移开删除文字
             //删除提示条
             d3.select("#SubCategory").remove();
             d3.select("#Sales").remove();
+            d3.select("#Profit").remove();
         });
 });
 
