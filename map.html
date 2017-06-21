@@ -4,14 +4,14 @@
   <meta charset="UTF-8">
   <title>map</title>
   <script src="d3/d3.v3.js"></script>
-  <style>
-    text {
-      font-size: 12px;
-    }
-  </style>
+  <link href="viz.css" rel="stylesheet">
 </head>
 <body>
-
+  <div id="tooltip" class="hidden"
+       style="border: none; background: none; padding: 2px;">
+    <p><strong>州：</strong><span id="State"></span></p>
+    <p><strong>利润：</strong><span id="Profit"></span></p>
+  </div>
 </body>
 <script>
 const width  = 1250;
@@ -89,7 +89,6 @@ d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function(data) {
                 let stateName = state.properties.name;
                 if (stateName === dataState) {
                     //把利润数据值复制到json中
-                    //console.log(stateName);
                     state.properties.Sales  = Number(dataSales);
                     state.properties.Profit = Number(dataProfit);
                     //停止循环JSON数据
@@ -99,11 +98,13 @@ d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function(data) {
         }
 
         //绑定数据并为每一个GeoJSON feature创建一个路径
-        let state = svg.selectAll("path")
+        const state = svg.selectAll("path")
             .data(states.features)
             .enter()
             .append("path")
             .attr("d", path)
+            .attr("stroke", "#aaaaaa")
+            .attr("stroke-width", 0.4)
             .attr("fill", function (d) {
                 const location = this.getBoundingClientRect();
                 //选择悬停元素的父元素svg，并向里面添加text标签和州的名字
@@ -118,7 +119,6 @@ d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function(data) {
                         return radius(sales);
                     })
                     .attr("fill", function(d) {
-                        //console.log(d);
                         let profit = Math.log(Math.abs(d.properties.Profit));
                         if (d.properties.Profit > 0)
                             return color(profit);
@@ -129,6 +129,7 @@ d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function(data) {
 
                 return "#cccccc";
                 /*
+                把州的颜色也变了觉得蛮好看，所以就留下代码了
                 let profit = Math.log(Math.abs(d.properties.Profit));
                 if (d.properties.Profit > 0)
                     return color(profit);
@@ -141,57 +142,52 @@ d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function(data) {
         circle.on("mouseover", function(d) {
             //鼠标悬停添加文字
             //取得鼠标所在元素的坐标
-            var location = this.getBoundingClientRect();
+            const location = this.getBoundingClientRect();
 
             //控制文字显示位置
-            var x = location.left + location.width/2 - 50;
-            var y = location.top  + location.height/2 - 10;
+            const x = location.left + location.width/2 - 34 - 8;
+            const y = location.top + location.height/2 - 21 - 8;
 
-            //选择悬停元素的父元素，并向里面添加text标签和州的名字
-            d3.select(this.parentNode)
-                .append('text')
-                .attr("id", "state_name").attr("x", x).attr("y", y)
-                .text(function() { return d.properties.name; });
+            // 更新提示条的位置和值
+            d3.select("#tooltip").classed("hidden", false)
+                .style("left", x + "px")
+                .style("top",  y + "px");
 
-            //第二行数据，显示利润，y相对上一行多了20px
-            d3.select(this.parentNode)
-                .append('text')
-                .attr("id", "profit_value").attr("x", x).attr("y", y+20)
-                .text(function() { return d.properties.Profit; });
+            // 填充数据
+            d3.select("#State")
+                .text(d.properties.name);
+            d3.select("#Profit")
+                .text(parseInt(d.properties.Profit));
         })
-            .on("mouseout", function(d) {
-                //鼠标移开删除文字
-                //删除提示条
-                d3.select("#state_name").remove();
-                d3.select("#profit_value").remove();
-            });
+        .on("mouseout", function(d) {
+            //鼠标移开隐藏文字
+            d3.select("#tooltip").classed("hidden", true);
+        });
+
         state.on("mouseover", function(d) {
             //鼠标悬停添加文字
             //取得鼠标所在元素的坐标
-            var location = this.getBoundingClientRect();
+            const location = this.getBoundingClientRect();
 
             //控制文字显示位置
-            var x = location.left + location.width/2 - 50;
-            var y = location.top  + location.height/2 - 10;
+            const x = location.left + location.width/2 - 34;
+            const y = location.top + location.height/2 - 21;
 
-            //选择悬停元素的父元素，并向里面添加text标签和州的名字
-            d3.select(this.parentNode)
-                .append('text')
-                .attr("id", "state_name").attr("x", x).attr("y", y)
-                .text(function() { return d.properties.name; });
+            // 更新提示条的位置和值
+            d3.select("#tooltip").classed("hidden", false)
+                .style("left", x + "px")
+                .style("top",  y + "px");
 
-            //第二行数据，显示利润，y相对上一行多了20px
-            d3.select(this.parentNode)
-                .append('text')
-                .attr("id", "profit_value").attr("x", x).attr("y", y+20)
-                .text(function() { return d.properties.Profit; });
+            // 填充数据
+            d3.select("#State")
+                .text(d.properties.name);
+            d3.select("#Profit")
+                .text(parseInt(d.properties.Profit));
         })
-            .on("mouseout", function(d) {
-                //鼠标移开删除文字
-                //删除提示条
-                d3.select("#state_name").remove();
-                d3.select("#profit_value").remove();
-            });
+        .on("mouseout", function(d) {
+            //鼠标移开隐藏文字
+            d3.select("#tooltip").classed("hidden", true);
+        });
     });
 });
 </script>
