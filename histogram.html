@@ -4,25 +4,16 @@
   <meta charset="UTF-8">
   <title>histogram</title>
   <script src="d3/d3.v3.js"></script>
-  <style>
-    .axis path,
-    .axis line{
-      fill: none;
-      stroke: black;
-      shape-rendering: crispEdges;
-    }
-
-    .axis text {
-      font-family: sans-serif;
-      font-size: 11px;
-    }
-    text {
-      font-size: 12px;
-    }
-  </style>
+  <link href="viz.css" rel="stylesheet">
 </head>
 <body>
-
+  <div id="tooltip" class="hidden"
+       style="border: none; background: none; padding: 2px;">
+    <p><strong>类别：</strong><span id="Category"></span></p>
+    <p><strong>子类别：</strong><span id="SubCategory"></span></p>
+    <p><strong>销售量：</strong><span id="Sales"></span></p>
+    <p><strong>利润：</strong><span id="Profit"></span></p>
+  </div>
 </body>
 <script>
 const width  = 1250;
@@ -33,7 +24,6 @@ const svg = d3.select("body")
     .attr("width", width)
     .attr("height", height);
 
-/* d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function(csv) { data = csv }) */
 d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function (data) {
 
     // 计算每一个子类别对应的总营销额以及利润
@@ -81,14 +71,22 @@ d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function (data) {
     svg.append("g")
         .attr("class","axis")
         .attr("transform","translate(" + padding.left + "," + (height - padding.bottom) + ")")
-        .call(xAxis);
+        .call(xAxis)
+        // 增加坐标值说明
+        .append('text')
+        .text('子类别')
+        .attr('transform', "translate(" + (width - padding.left - padding.right) + ", -7)");
     svg.append("g")
         .attr("class","axis")
         .attr("transform","translate(" + padding.left + "," + padding.top + ")")
-        .call(yAxis);
+        .call(yAxis)
+        // 增加坐标值说明
+        .append('text')
+        .text("销售量")
+        .attr('transform', "translate(-34, -10)");
 
     // 添加矩形元素
-    svg.selectAll("rect")
+    let rect = svg.selectAll("rect")
         .data(arr)
         .enter()
         .append("rect")
@@ -105,48 +103,42 @@ d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function (data) {
         .attr("width", xScale.rangeBand())
         .attr("height", function(d){
             return height - padding.top - padding.bottom - yScale(d[1]);
-        })
-        // 添加鼠标事件
-        .on("mouseover", function(d) { //鼠标悬停添加文字
-            //取得鼠标所在元素的坐标
-            const location = this.getBoundingClientRect();
-            //console.log(location);
-
-            //控制文字显示位置
-            const x = location.left - 5;
-            // 高于一半则显示在下方，否则显示在上方
-            const fontHeight = 16;
-            const y = (yScale(d[1]) > height/2)
-                ? height - location.height - 7 - 4*fontHeight
-                : height - location.height - 7;
-
-            //选择悬停元素的父元素，并向里面添加text标签和州的名字
-            d3.select(this.parentNode)
-                .append('text')
-                .attr("id", "Category").attr("x", x).attr("y", y)
-                .text(function() { return "类别：" + d[3]; });
-            d3.select(this.parentNode)
-                .append('text')
-                .attr("id", "SubCategory").attr("x", x).attr("y", y + fontHeight)
-                .text(function() { return "子类别：" + d[0]; });
-            //第二行数据，显示销售量
-            d3.select(this.parentNode)
-                .append('text')
-                .attr("id", "Sales").attr("x", x).attr("y", y + 2*fontHeight)
-                .text(function() { return "销售量：" + parseInt(d[1]); });
-            //第三行数据，显示利润
-            d3.select(this.parentNode)
-                .append('text')
-                .attr("id", "Profit").attr("x", x).attr("y", y + 3*fontHeight)
-                .text(function() { return "利润：" + parseInt(d[2]); });
-        })
-        .on("mouseout", function() { //鼠标移开删除文字
-            //删除提示条
-            d3.select("#Category").remove();
-            d3.select("#SubCategory").remove();
-            d3.select("#Sales").remove();
-            d3.select("#Profit").remove();
         });
+
+    // 添加鼠标事件
+    rect.on("mouseover", function(d) {
+        //鼠标悬停添加文字
+        //取得鼠标所在元素的坐标
+        const location = this.getBoundingClientRect();
+
+        //控制文字显示位置
+        const x = location.left;
+        // 高于一半则显示在下方，否则显示在上方
+        const fontHeight = 20;
+        const y = (yScale(d[1]) > height/2)
+            ? height - location.height - 14 - 4*fontHeight
+            : height - location.height - 14;
+
+        // 更新提示条的位置和值
+        d3.select("#tooltip")
+            .classed("hidden", false)
+            .style("left", x + "px")
+            .style("top",  y + "px");
+
+        // 填充数据
+        d3.select("#Category")
+            .text(d[3]);
+        d3.select("#SubCategory")
+            .text(d[0]);
+        d3.select("#Sales")
+            .text(parseInt(d[1]));
+        d3.select("#Profit")
+            .text(parseInt(d[2]));
+    })
+    .on("mouseout", function() {
+        //鼠标移开隐藏文字
+        d3.select("#tooltip").classed("hidden", true);
+    });
 });
 
 </script>
