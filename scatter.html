@@ -7,6 +7,13 @@
   <link href="viz.css" rel="stylesheet">
 </head>
 <body>
+  <div id="nav-bar">
+    <div><a href="index.html">home</a></div>
+    <div><a href="histogram.html">histogram</a></div>
+    <div><a href="line.html">line</a></div>
+    <div><a href="map.html">map</a></div>
+    <div><a href="scatter.html">scatter</a></div>
+  </div>
   <div id="tooltip" class="hidden">
     <p><strong>客户ID：</strong><span id="CustomerID"></span></p>
     <p><strong>类别：</strong><span id="Category"></span></p>
@@ -87,7 +94,7 @@ d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function (data) {
         });
 
     circle.on('mouseover', function(d) {
-        d3.select(this).transition().duration(500).attr('r', 6);
+        d3.select(this).transition().duration(5).attr('r', 6);
 
         const location = this.getBoundingClientRect();
         const left = (location.left > document.body.clientWidth - 200)
@@ -112,7 +119,7 @@ d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function (data) {
         d3.select("#tooltip").classed("hidden", false);
     })
     .on('mouseout', function() {
-        d3.select(this).transition().duration(500).attr('r', 4);
+        d3.select(this).transition().duration(5).attr('r', 4);
         // 隐藏提示条
         d3.select("#tooltip").classed("hidden", true);
     });

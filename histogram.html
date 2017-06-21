@@ -7,6 +7,13 @@
   <link href="viz.css" rel="stylesheet">
 </head>
 <body>
+  <div id="nav-bar">
+    <div><a href="index.html">home</a></div>
+    <div><a href="histogram.html">histogram</a></div>
+    <div><a href="line.html">line</a></div>
+    <div><a href="map.html">map</a></div>
+    <div><a href="scatter.html">scatter</a></div>
+  </div>
   <div id="tooltip" class="hidden"
        style="border: none; background: none; padding: 2px;">
     <p><strong>类别：</strong><span id="Category"></span></p>
@@ -116,8 +123,8 @@ d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function (data) {
         // 高于一半则显示在下方，否则显示在上方
         const fontHeight = 20;
         const y = (yScale(d[1]) > height/2)
-            ? height - location.height - 14 - 4*fontHeight
-            : height - location.height - 14;
+            ? height - location.height - 14 + 26 - 4*fontHeight
+            : height - location.height - 14 + 26;
 
         // 更新提示条的位置和值
         d3.select("#tooltip")

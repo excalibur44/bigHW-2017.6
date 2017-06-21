@@ -7,6 +7,13 @@
   <link href="viz.css" rel="stylesheet">
 </head>
 <body>
+  <div id="nav-bar">
+    <div><a href="index.html">home</a></div>
+    <div><a href="histogram.html">histogram</a></div>
+    <div><a href="line.html">line</a></div>
+    <div><a href="map.html">map</a></div>
+    <div><a href="scatter.html">scatter</a></div>
+  </div>
   <div id="tooltip" class="hidden"
        style="border: none; background: none; padding: 2px;">
     <p><strong>州：</strong><span id="State"></span></p>
@@ -113,7 +120,7 @@ d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function(data) {
                     .append('g')
                     .append('circle')
                     .attr('cx', location.left + location.width/2)
-                    .attr('cy', location.top + location.height/2)
+                    .attr('cy', location.top + location.height/2 - 26)
                     .attr('r', function (d) {
                         let sales = Math.abs(d.properties.Sales);
                         return radius(sales);
