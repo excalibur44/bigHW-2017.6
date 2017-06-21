@@ -21,8 +21,10 @@
   </div>
 </body>
 <script>
-const width  = 1250;
-const height = 450;
+//const width  = 1250;
+//const height = 450;
+const height = innerHeight - 50;
+const width  = document.body.clientWidth;
 
 const svg = d3.select("body")
     .append("svg")
