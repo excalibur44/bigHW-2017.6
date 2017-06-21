@@ -4,25 +4,14 @@
   <meta charset="UTF-8">
   <title>lineChart</title>
   <script src="d3/d3.v3.js"></script>
-  <style>
-    .axis path,
-    .axis line{
-      fill: none;
-      stroke: black;
-      shape-rendering: crispEdges;
-    }
-
-    .axis text {
-      font-family: sans-serif;
-      font-size: 11px;
-    }
-    text {
-      font-size: 12px;
-    }
-  </style>
+  <link href="viz.css" rel="stylesheet">
 </head>
 <body>
-
+  <div id="tooltip" class="hidden">
+    <p><strong>订购月份：</strong><span id="Month"></span><strong> 月</strong></p>
+    <p><strong>类别：</strong><span id="Category"></span></p>
+    <p><strong>销售量：</strong><span id="Sales"></span></p>
+  </div>
 </body>
 <script>
 const width  = 1250;
@@ -37,7 +26,6 @@ const svg = d3.select("body")
 parseDate = d3.time.format("%Y/%m/%d").parse;
 getMonth  = d3.time.format("%m");
 
-/* d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function(csv) { data = csv }) */
 d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function (data) {
 
     // 计算每一个类别对应的总营销额以及月份
@@ -57,12 +45,14 @@ d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function (data) {
             arr.push(newArr);
         }
     }
+    // 按照数据种类提取数据
     let Category = [], OrderMonth = [], Sales = [];
     for (let i of arr) {
         Category.push(i[0]);
         OrderMonth.push(i[1]);
         Sales.push(i[2]);
     }
+    // 按照类别提取数据
     let OfficeSupplies = [], Technology = [], Furniture = [];
     for (let i of arr) {
         if (i[0] === "Office Supplies")
@@ -72,6 +62,7 @@ d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function (data) {
         if (i[0] === "Furniture")
             Furniture.push(i);
     }
+    // 按照月份排序数据
     OfficeSupplies.sort(function(x, y){
         return x[1] - y[1];
     });
@@ -81,6 +72,11 @@ d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function (data) {
     Furniture.sort(function(x, y){
         return x[1] - y[1];
     });
+
+    const color = new Map()
+        .set("Office Supplies", "#e84e40")
+        .set("Technology", "#5677fc")
+        .set("Furniture", "#009688");
 
     // 给坐标轴预留出来空白
     const padding = {left:80, right:80, top:20, bottom:20};
@@ -109,6 +105,7 @@ d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function (data) {
         .attr('class', 'axis')
         .attr("transform","translate(" + padding.left + "," + padding.top + ")")
         .call(yAxis)
+        // 增加坐标值说明
         .append('text')
         .text("销售量")
         .attr('transform', "translate(-34, -10)");
@@ -116,46 +113,67 @@ d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function (data) {
     //路径生成器
     let line = d3.svg.line()
         .x(function(d) { return xScale(d[1]) + padding.left; })
-        .y(function(d) { return yScale(d[2]); })
+        .y(function(d) { return yScale(d[2]) + padding.top; })
         .interpolate("linear"); // monotone -> 平滑
 
     // 向svg添加线条
-    let pathOfficeSupplies = svg.append('path')
+    svg.append('path')
         .data(arr)
-        //.attr('class', 'line')
         .attr("fill", "transparent")
-        .attr("stroke", "green")
+        .attr("stroke", color.get("Office Supplies"))
         .attr('stroke-width', 2)
         .attr('d', line(OfficeSupplies));
-    let pathTechnology = svg.append('path')
+    svg.append('path')
         .data(arr)
-        //.attr('class', 'line')
         .attr("fill", "transparent")
-        .attr("stroke", "red")
+        .attr("stroke", color.get("Technology"))
         .attr('stroke-width', 2)
         .attr('d', line(Technology));
-    let pathFurniture = svg.append('path')
+    svg.append('path')
         .data(arr)
-        //.attr('class', 'line')
         .attr("fill", "transparent")
-        .attr("stroke", "blue")
+        .attr("stroke", color.get("Furniture"))
         .attr('stroke-width', 2)
         .attr('d', line(Furniture));
 
     let circle = svg.selectAll('circle')
-        .data(OfficeSupplies)
+        .data(arr)
         .enter()
         .append('g')
         .append('circle')
-        .attr('fill', 'green')
+        .attr('fill', function (d) {
+            return color.get(d[0])
+        })
         .attr('cx', line.x())
         .attr('cy', line.y())
         .attr('r', 4)
         .on('mouseover', function(d) {
             d3.select(this).transition().duration(5).attr('r', 6);
+
+            const location = this.getBoundingClientRect();
+            const top  = location.top;
+            const left = (location.left > document.body.clientWidth - 200)
+                ? location.left - 226
+                : location.left + 2;
+
+            // 更新提示条的位置和值，并显示提示条
+            d3.select("#tooltip").classed("hidden", false)
+                .style("left", (left + 5) + "px")
+                .style("top", (top + 5) + "px")
+                .style("background-color", color.get(d[0]));
+
+            // 填充数据
+            d3.select("#Month")
+                .text(d[1]);
+            d3.select("#Category")
+                .text(d[0]);
+            d3.select("#Sales")
+                .text(parseInt(d[2]));
         })
         .on('mouseout', function() {
             d3.select(this).transition().duration(5).attr('r', 4);
+            // 隐藏提示条
+            d3.select("#tooltip").classed("hidden", true);
         });
 });
 </script>

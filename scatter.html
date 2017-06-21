@@ -90,7 +90,9 @@ d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function (data) {
         d3.select(this).transition().duration(500).attr('r', 6);
 
         const location = this.getBoundingClientRect();
-        const left = (location.left > document.body.clientWidth - 200)?location.left-226:location.left;
+        const left = (location.left > document.body.clientWidth - 200)
+            ? location.left - 226
+            : location.left + 2;
         const top  = location.top;
         // 更新提示条的位置和值
         d3.select("#tooltip")
