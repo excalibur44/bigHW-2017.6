@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Scatter</title>
+  <script src="d3/d3.v3.js"></script>
+  <style>
+    .axis path,
+    .axis line{
+      fill: none;
+      stroke: black;
+      shape-rendering: crispEdges;
+    }
+
+    .axis text {
+      font-family: sans-serif;
+      font-size: 11px;
+    }
+    text {
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+
+</body>
+<script type="text/javascript">
+const width  = 1250;
+const height = 450;
+
+const svg = d3.select("body")
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+/* d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function(csv) { data = csv }) */
+d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function (data) {
+
+    const size = 44;
+    const dot = d3.svg.symbol().type("circle").size(size);
+    const square = d3.svg.symbol().type("square").size(size);
+    const triangle = d3.svg.symbol().type("triangle-up").size(size);
+    //console.log(circle);
+
+    const color = new Map()
+        .set("Office Supplies", "red")
+        .set("Technology", "blue")
+        .set("Furniture", "green");
+
+    // 给坐标轴预留出来空白
+    const padding = {left:80, right:80, top:20, bottom:20};
+    // 计算比例尺
+    const xScale = d3.scale.linear()
+        .domain([
+            d3.min(data, function (d) { return Number(d.ShippingCost) }),
+            d3.max(data, function (d) { return Number(d.ShippingCost) })
+        ])
+        .range([0, width - padding.left - padding.right]);
+    const yScale = d3.scale.linear()
+        .domain([
+            d3.min(data, function (d) { return Number(d.Profit) }),
+            d3.max(data, function (d) { return Number(d.Profit) })
+        ])
+        .range([ height - padding.top - padding.bottom, 0 ]);
+
+    //定义坐标轴
+    const xAxis = d3.svg.axis().scale(xScale).orient("bottom").ticks(10);
+    const yAxis = d3.svg.axis().scale(yScale).orient("left");
+
+    //添加坐标轴
+    svg.append("g")
+        .attr("class","axis")
+        .attr("transform","translate(" + padding.left + "," + (height - padding.bottom) + ")")
+        .call(xAxis);
+    svg.append("g")
+        .attr("class","axis")
+        .attr("transform","translate(" + padding.left + "," + padding.top + ")")
+        .call(yAxis);
+
+    let circle = svg.selectAll("circle")
+        .data(data)
+        .enter()
+        .append('g')
+        .append('circle')
+        .attr({
+            "transform": function (d) {
+                return "translate(" +
+                    (xScale(d.ShippingCost) + padding.left) + "," +
+                    (yScale(d.Profit) + padding.top) + ")"
+            },
+            "fill": function (d) {
+                return color.get(d.Category);
+            },
+            "opacity": 0.76,
+            "r": 4
+        });
+
+    circle.on('mouseover', function() {
+        d3.select(this).transition().duration(500).attr('r', 6);
+    })
+    .on('mouseout', function() {
+        d3.select(this).transition().duration(500).attr('r', 4);
+    });
+
+    // 计算每一个子类别对应的总营销额以及利润
+    /*let arr = [];
+    for (let i = 0; i < data.length; i++) {
+        let hasSubCategory = false;
+        for (let j = 0; j < arr.length; j++) {
+            if (data[i].SubCategory === arr[j][0]) {
+                arr[j][1] += Number(data[i].Sales);
+                arr[j][2] += Number(data[i].Profit);
+                hasSubCategory = true;
+            }
+        }
+        if (!hasSubCategory) {
+            let newArr = [data[i].SubCategory, Number(data[i].Sales), Number(data[i].Profit), data[i].Category];
+            arr.push(newArr);
+        }
+    }*/
+})
+</script>
+</html>
