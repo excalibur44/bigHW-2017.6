@@ -39,6 +39,11 @@ d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function (data) {
         .set("Technology", "#5677fc")
         .set("Furniture", "#009688");
 
+    const bgcolor = new Map()
+        .set("Office Supplies", "#f9bdbb")
+        .set("Technology", "#d0d9ff")
+        .set("Furniture", "#b2dfdb");
+
     // 给坐标轴预留出来空白
     const padding = {left:80, right:80, top:20, bottom:20};
     // 计算比例尺
@@ -109,7 +114,7 @@ d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function (data) {
         d3.select("#tooltip")
             .style("left", (left + 5) + "px")
             .style("top", (top + 5) + "px")
-            .style("background-color", color.get(d.Category));
+            .style("background-color", bgcolor.get(d.Category));
         // 填充数据
         d3.select("#CustomerID")
             .text(d.CustomerID);

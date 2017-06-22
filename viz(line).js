@@ -235,6 +235,11 @@ function line(height, width, data) {
         .set("Technology", "#5677fc")
         .set("Furniture", "#009688");
 
+    const bgcolor = new Map()
+        .set("Office Supplies", "#f9bdbb")
+        .set("Technology", "#d0d9ff")
+        .set("Furniture", "#b2dfdb");
+
     // 给坐标轴预留出来空白
     const padding = {left:80, right:80, top:20, bottom:20};
     // 定义坐标轴的比例尺
@@ -318,7 +323,7 @@ function line(height, width, data) {
             d3.select("#tooltip-line").style("display", "block")
                 .style("left", (left + 5) + "px")
                 .style("top", (top + 5) + "px")
-                .style("background-color", color.get(d[0]));
+                .style("background-color", bgcolor.get(d[0]));
 
             // 填充数据
             d3.select("#Month-line")
