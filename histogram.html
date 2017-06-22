@@ -51,6 +51,11 @@ d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function (data) {
             arr.push(newArr);
         }
     }
+
+    // arr排序
+    arr.sort(function (x, y) {
+        return y[1] - x[1]
+    });
     let SubCategory = [], Sales = [], Profit = [];
     for (let i of arr) {
         SubCategory.push(i[0]);
