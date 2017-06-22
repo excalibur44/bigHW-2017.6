@@ -220,8 +220,8 @@ function histogram(height, width, data) {
         .range([ height - padding.top - padding.bottom, 0 ]);
     // 颜色比例尺
     const colorScale = d3.scale.linear()
-        .domain([ parseInt(d3.min(Profit)), 0, parseInt(d3.max(Profit))+1 ])
-        .range(["#e51c23", "#cccccc", "#259b24"]);
+        .domain([ parseInt(d3.min(Profit)), -1, 0, parseInt(d3.max(Profit))+1 ])
+        .range(["#e51c23", "#f9bdbb", "#a3e9a4", "#259b24"]);
 
     //定义坐标轴
     const xAxis = d3.svg.axis().scale(xScale).orient("bottom");
