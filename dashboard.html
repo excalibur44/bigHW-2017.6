@@ -31,6 +31,14 @@
   </style>
 </head>
 <body>
+  <div id="nav-bar">
+    <div><a href="index.html">home</a></div>
+    <div><a href="histogram.html">histogram</a></div>
+    <div><a href="line.html">line</a></div>
+    <div><a href="map.html">map</a></div>
+    <div><a href="scatter.html">scatter</a></div>
+    <div><a href="dashboard.html"></a></div>
+  </div>
   <div id="tooltip-map" class="tooltip"
        style="border: none; background: none; padding: 2px;">
     <p><strong>State: </strong><span id="State-map"></span></p>
@@ -47,7 +55,7 @@
   <svg id="histogram"></svg>
 </body>
   <script>
-      const height = innerHeight - 50;
+      const height = innerHeight - 50 - 26;
       const width  = document.body.clientWidth;
 
       const mapHeight = height*2/3;
