@@ -134,8 +134,7 @@ d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function (data) {
             : height - location.height - 14 + 26;
 
         // 更新提示条的位置和值
-        d3.select("#tooltip")
-            .classed("hidden", false)
+        d3.select("#tooltip").classed("hidden", false)
             .style("left", x + "px")
             .style("top",  y + "px");
 
