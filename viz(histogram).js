@@ -236,7 +236,7 @@ function histogram(height, width, data) {
         .call(xAxis)
         // 增加坐标值说明
         .append('text')
-        .text('子类别')
+        .text('SubCategory')//子类别
         .attr('transform', "translate(" + (width - padding.left - padding.right) + ", -7)");
     svg.append("g")
         .attr("class","axis")
@@ -244,7 +244,7 @@ function histogram(height, width, data) {
         .call(yAxis)
         // 增加坐标值说明
         .append('text')
-        .text("销售量")
+        .text("Sales")//销售量
         .attr('transform', "translate(-34, -10)");
 
     // 添加矩形元素
