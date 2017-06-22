@@ -2,7 +2,7 @@
  * Created by excalibur on 2017/6/18.
  */
 
-let mapArr = [];
+let srcData;
 let mapSvg;
 let lineSvg;
 let radius;
@@ -10,6 +10,7 @@ let color;
 
 function map(height, width, data) {
     const svg = mapSvg;
+    srcData = data;
 
     //定义地图的投影
     const projection = d3.geo.albersUsa()
@@ -147,10 +148,10 @@ function map(height, width, data) {
             d3.select("#Profit-map")
                 .text(parseInt(d.properties.Profit));
         })
-            .on("mouseout", function(d) {
-                //鼠标移开隐藏文字
-                d3.select("#tooltip-map").style("display", "none");
-            });
+        .on("mouseout", function(d) {
+            //鼠标移开隐藏文字
+            d3.select("#tooltip-map").style("display", "none");
+        });
 
         state.on("mouseover", function(d) {
             //鼠标悬停添加文字
@@ -172,10 +173,10 @@ function map(height, width, data) {
             d3.select("#Profit-map")
                 .text(parseInt(d.properties.Profit));
         })
-            .on("mouseout", function(d) {
-                //鼠标移开隐藏文字
-                d3.select("#tooltip-map").style("display", "none");
-            });
+        .on("mouseout", function(d) {
+            //鼠标移开隐藏文字
+            d3.select("#tooltip-map").style("display", "none");
+        });
     });
 }
 
@@ -341,11 +342,29 @@ function line(height, width, data) {
 }
 
 function updateMap(Category) {
+    // 计算每一个子类别对应的总营销额以及利润
+    let mapArr = [];
+    for (let d of srcData){
+        let hasSubCategory = false;
+        for (let a of mapArr) {
+            if ( d.State === a[0] && d.Category === a[3] ) {
+                a[1] += Number(d.Sales);
+                a[2] += Number(d.Profit);
+                hasSubCategory = true;
+            }
+        }
+        if (!hasSubCategory) {
+            let newArr = [d.State, Number(d.Sales), Number(d.Profit), d.Category];
+            mapArr.push(newArr);
+        }
+    }
+
     let arr = [];
     for (let d of mapArr) {
         if (d[3] === Category)
             arr.push(d);
     }
+    //console.log(arr);
 
     /*mapSvg.selectAll("path")
         .data(arr)
@@ -388,5 +407,58 @@ function updateMap(Category) {
                 return color(profit);
             else
                 return color(-profit);
+        });
+
+    mapSvg.selectAll("circle")
+        .on("mouseover", function(d) {
+            //鼠标悬停添加文字
+            //取得鼠标所在元素的坐标
+            const location = this.getBoundingClientRect();
+
+            //控制文字显示位置
+            const x = location.left + location.width/2 - 34 - 8;
+            const y = location.top + location.height/2 - 21 - 8;
+
+            // 更新提示条的位置和值
+            d3.select("#tooltip-map").style("display", "block")
+                .style("left", x + "px")
+                .style("top",  y + "px");
+
+            // 填充数据
+            d3.select("#State-map")
+                .text(d[0]);
+            d3.select("#Profit-map")
+                .text(parseInt(d[2]));
         })
+        .on("mouseout", function(d) {
+            //鼠标移开隐藏文字
+            d3.select("#tooltip-map").style("display", "none");
+        });
+
+    mapSvg.selectAll("path")
+        .data(arr)
+        .on("mouseover", function(d) {
+            //鼠标悬停添加文字
+            //取得鼠标所在元素的坐标
+            const location = this.getBoundingClientRect();
+
+            //控制文字显示位置
+            const x = location.left + location.width/2 - 34;
+            const y = location.top + location.height/2 - 21;
+
+            // 更新提示条的位置和值
+            d3.select("#tooltip-map").style("display", "block")
+                .style("left", x + "px")
+                .style("top",  y + "px");
+
+            // 填充数据
+            d3.select("#State-map")
+                .text(d[0]);
+            d3.select("#Profit-map")
+                .text(parseInt(d[2]));
+        })
+        .on("mouseout", function(d) {
+            //鼠标移开隐藏文字
+            d3.select("#tooltip-map").style("display", "none");
+        });
 }
