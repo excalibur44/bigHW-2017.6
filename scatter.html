@@ -15,10 +15,10 @@
     <div><a href="scatter.html">scatter</a></div>
   </div>
   <div id="tooltip" class="hidden">
-    <p><strong>客户ID：</strong><span id="CustomerID"></span></p>
-    <p><strong>类别：</strong><span id="Category"></span></p>
-    <p><strong>利润：</strong><span id="Profit"></span></p>
-    <p><strong>装运成本：</strong><span id="ShippingCost"></span></p>
+    <p><strong>Customer ID: </strong><span id="CustomerID"></span></p>
+    <p><strong>Category: </strong><span id="Category"></span></p>
+    <p><strong>Profit: </strong><span id="Profit"></span></p>
+    <p><strong>ShippingCost: </strong><span id="ShippingCost"></span></p>
   </div>
 </body>
 <script type="text/javascript">
@@ -66,7 +66,7 @@ d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function (data) {
         .call(xAxis)
         // 增加坐标值说明
         .append('text')
-        .text('转运成本')
+        .text('ShippingCost')
         .attr('transform', "translate(" + (width - padding.left - padding.right - 20) + ", -7)");
     svg.append("g")
         .attr("class","axis")
@@ -74,7 +74,7 @@ d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function (data) {
         .call(yAxis)
         // 增加坐标值说明
         .append('text')
-        .text("利润")
+        .text("Profit")
         .attr('transform', "translate(-34, -10)");
 
     let circle = svg.selectAll("circle")

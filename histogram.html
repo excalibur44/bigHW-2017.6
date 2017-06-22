@@ -16,10 +16,10 @@
   </div>
   <div id="tooltip" class="hidden"
        style="border: none; background: none; padding: 2px;">
-    <p><strong>类别：</strong><span id="Category"></span></p>
-    <p><strong>子类别：</strong><span id="SubCategory"></span></p>
-    <p><strong>销售量：</strong><span id="Sales"></span></p>
-    <p><strong>利润：</strong><span id="Profit"></span></p>
+    <p><strong>Category: </strong><span id="Category"></span></p>
+    <p><strong>SubCategory: </strong><span id="SubCategory"></span></p>
+    <p><strong>Sales: </strong><span id="Sales"></span></p>
+    <p><strong>Profit: </strong><span id="Profit"></span></p>
   </div>
 </body>
 <script>
@@ -88,7 +88,7 @@ d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function (data) {
         .call(xAxis)
         // 增加坐标值说明
         .append('text')
-        .text('子类别')
+        .text('SubCategory')
         .attr('transform', "translate(" + (width - padding.left - padding.right) + ", -7)");
     svg.append("g")
         .attr("class","axis")
@@ -96,7 +96,7 @@ d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function (data) {
         .call(yAxis)
         // 增加坐标值说明
         .append('text')
-        .text("销售量")
+        .text("Sales")
         .attr('transform', "translate(-34, -10)");
 
     // 添加矩形元素

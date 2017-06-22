@@ -15,9 +15,9 @@
     <div><a href="scatter.html">scatter</a></div>
   </div>
   <div id="tooltip" class="hidden">
-    <p><strong>订购月份：</strong><span id="Month"></span><strong> 月</strong></p>
-    <p><strong>类别：</strong><span id="Category"></span></p>
-    <p><strong>销售量：</strong><span id="Sales"></span></p>
+    <p><strong>Month: </strong><span id="Month"></span></p>
+    <p><strong>Category: </strong><span id="Category"></span></p>
+    <p><strong>Sales: </strong><span id="Sales"></span></p>
   </div>
 </body>
 <script>
@@ -108,7 +108,7 @@ d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function (data) {
         .call(xAxis)
         // 增加坐标值说明
         .append('text')
-        .text('月份')
+        .text('Month')
         .attr('transform', "translate(" + (width - padding.left - padding.right) + ", -5)");
     svg.append('g')
         .attr('class', 'axis')
@@ -116,7 +116,7 @@ d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function (data) {
         .call(yAxis)
         // 增加坐标值说明
         .append('text')
-        .text("销售量")
+        .text("Sales")
         .attr('transform', "translate(-34, -10)");
 
     //路径生成器
