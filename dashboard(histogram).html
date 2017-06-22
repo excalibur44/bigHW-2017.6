@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="UTF-8">
+  <title>dashboard</title>
+  <script src="d3/d3.v3.js"></script>
+  <script src="viz(histogram).js"></script>
+  <link href="viz.css" rel="stylesheet">
+  <style>
+    .tooltip {
+      position: absolute;
+      width: 200px;
+      height: auto;
+      padding: 10px;
+      background-color: white;
+      -webkit-border-radius: 10px;
+      -moz-border-radius: 10px;
+      border-radius: 10px;
+      border: 1px #000 solid;
+      pointer-events: none;
+    }
+    .tooltip {
+      display: none;
+    }
+    .tooltip p {
+      margin: 0;
+      font-family: sans-serif;
+      font-size: 14px;
+      line-height: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div id="tooltip-map" class="tooltip"
+       style="border: none; background: none; padding: 2px;">
+    <p><strong>州：</strong><span id="State-map"></span></p>
+    <p><strong>利润：</strong><span id="Profit-map"></span></p>
+  </div>
+  <div id="tooltip-histogram" class="tooltip"
+       style="border: none; background: none; padding: 2px;">
+    <p><strong>类别：</strong><span id="Category-histogram"></span></p>
+    <p><strong>子类别：</strong><span id="SubCategory-histogram"></span></p>
+    <p><strong>销售量：</strong><span id="Sales-histogram"></span></p>
+    <p><strong>利润：</strong><span id="Profit-histogram"></span></p>
+  </div>
+  <svg id="map"></svg>
+  <svg id="histogram"></svg>
+</body>
+  <script>
+      const height = innerHeight - 50;
+      const width  = document.body.clientWidth;
+
+      const mapHeight = height*2/3;
+      const mapWidth = width;
+      const histogramHeight = height/3;
+      const histogramWidth = width;
+
+      mapSvg = d3.select("#map")
+          .attr("height", mapHeight)
+          .attr("width", mapWidth);
+
+      histogramSvg = d3.select("#histogram")
+          .attr("height", histogramHeight)
+          .attr("width", histogramWidth);
+
+      d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function (data) {
+          map(mapHeight, mapWidth, data);
+          histogram(histogramHeight, histogramWidth, data);
+      });
+  </script>
+</html>
