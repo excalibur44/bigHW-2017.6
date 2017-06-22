@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>dashboard</title>
   <script src="d3/d3.v3.js"></script>
-  <script src="viz(histogram).js"></script>
+  <script src="viz(line).js"></script>
   <link href="viz.css" rel="stylesheet">
   <style>
     .tooltip {
@@ -33,18 +33,16 @@
 <body>
   <div id="tooltip-map" class="tooltip"
        style="border: none; background: none; padding: 2px;">
-    <p><strong>State: </strong><span id="State-map"></span></p>
-    <p><strong>Profit: </strong><span id="Profit-map"></span></p>
+    <p><strong>州：</strong><span id="State-map"></span></p>
+    <p><strong>利润：</strong><span id="Profit-map"></span></p>
   </div>
-  <div id="tooltip-histogram" class="tooltip"
-       style="border: none; background: none; padding: 2px;">
-    <p><strong>Category: </strong><span id="Category-histogram"></span></p>
-    <p><strong>SubCategory: </strong><span id="SubCategory-histogram"></span></p>
-    <p><strong>Sales: </strong><span id="Sales-histogram"></span></p>
-    <p><strong>Profit: </strong><span id="Profit-histogram"></span></p>
+  <div id="tooltip-line" class="tooltip">
+    <p><strong>订购月份：</strong><span id="Month-line"></span><strong> 月</strong></p>
+    <p><strong>类别：</strong><span id="Category-line"></span></p>
+    <p><strong>销售量：</strong><span id="Sales-line"></span></p>
   </div>
   <svg id="map"></svg>
-  <svg id="histogram"></svg>
+  <svg id="line"></svg>
 </body>
   <script>
       const height = innerHeight - 50;
@@ -52,20 +50,20 @@
 
       const mapHeight = height*2/3;
       const mapWidth = width;
-      const histogramHeight = height/3;
-      const histogramWidth = width;
+      const lineHeight = height/3;
+      const lineWidth = width;
 
       mapSvg = d3.select("#map")
           .attr("height", mapHeight)
           .attr("width", mapWidth);
 
-      histogramSvg = d3.select("#histogram")
-          .attr("height", histogramHeight)
-          .attr("width", histogramWidth);
+      lineSvg = d3.select("#line")
+          .attr("height", lineHeight)
+          .attr("width", lineWidth);
 
       d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function (data) {
           map(mapHeight, mapWidth, data);
-          histogram(histogramHeight, histogramWidth, data);
+          line(lineHeight, lineWidth, data);
       });
   </script>
 </html>
