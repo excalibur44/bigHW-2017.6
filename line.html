@@ -161,8 +161,9 @@ d3.csv("USA_Superstore_Orders_2016_en-US_viz.csv", function (data) {
         })
         .attr('cx', line.x())
         .attr('cy', line.y())
-        .attr('r', 4)
-        .on('mouseover', function(d) {
+        .attr('r', 4);
+
+    circle.on('mouseover', function(d) {
             d3.select(this).transition().duration(5).attr('r', 6);
 
             const location = this.getBoundingClientRect();

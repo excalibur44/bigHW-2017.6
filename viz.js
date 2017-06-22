@@ -275,9 +275,7 @@ function histogram(height, width, data) {
             const x = location.left;
             // 高于一半则显示在下方，否则显示在上方
             const fontHeight = 20;
-            const y = (yScale(d[1]) > height*1/3)
-                ?  innerHeight - 70 - location.height - 14 + 26 - 4*fontHeight
-                :  innerHeight - 70 - location.height - 14 + 26;
+            const y = innerHeight - 70 - location.height - 14 + 26 - 4*fontHeight;
 
             // 更新提示条的位置和值
             d3.select("#tooltip-histogram").style("display", "block")
