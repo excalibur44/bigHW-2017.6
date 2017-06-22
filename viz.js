@@ -298,11 +298,21 @@ function histogram(height, width, data) {
         });
 
     rect.on("click", function (d) {
-        updateMap(d[0]);
+        SubCategory = d[0];
+
+        d3.selectAll("rect")
+            .attr("fill", function (d) {
+                if (SubCategory === d[0])
+                    return colorScale(d[2]);
+                else
+                    return "#cccccc";
+            });
+
+        updateMap(SubCategory);
     })
 }
 
-function updateMap(Category) {
+function updateMap(SubCategory) {
     // 计算每一个子类别对应的总营销额以及利润
     let mapArr = [];
     for (let d of srcData){
@@ -322,7 +332,7 @@ function updateMap(Category) {
 
     let arr = [];
     for (let d of mapArr) {
-        if (d[3] === Category)
+        if (d[3] === SubCategory)
             arr.push(d);
     }
 
