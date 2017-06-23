@@ -309,7 +309,7 @@ function histogram(height, width, data) {
             });
 
         updateMap(SubCategory);
-    })
+    });
 }
 
 function updateMap(SubCategory) {
@@ -357,6 +357,7 @@ function updateMap(SubCategory) {
         });
 
     mapSvg.selectAll("circle")
+        .data(arr)
         .on("mouseover", function(d) {
             //鼠标悬停添加文字
             //取得鼠标所在元素的坐标
